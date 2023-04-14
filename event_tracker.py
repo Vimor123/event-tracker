@@ -4,7 +4,9 @@ import codecs
 
 # Event format: dd.mm.yyyy. - <event name>
 
+event_file_directory = '/home/vimor/myGitRepositories/event-tracker'
 event_file_name = 'events.txt'
+event_file_path = os.path.join(event_file_directory, event_file_name)
 
 
 def main():
@@ -76,8 +78,8 @@ def main():
 
 def load_events():
     events = []
-    if os.path.isfile(event_file_name):
-        events_file = codecs.open(event_file_name, 'r', "utf-8")
+    if os.path.isfile(event_file_path):
+        events_file = codecs.open(event_file_path, 'r', "utf-8")
         for line in events_file:
             event_string = line[:-1]
             name_string = event_string[event_string.find('-')+2:]
@@ -98,7 +100,7 @@ def save_events(events):
         return event["date"]
     events.sort(key=event_date)
     
-    events_file = codecs.open(event_file_name, 'w', "utf-8")
+    events_file = codecs.open(event_file_path, 'w', "utf-8")
     for event in events:
         events_file.write("{} - {}\n".format(event["date"].strftime("%d.%m.%Y."),
                                              event["name"]))
