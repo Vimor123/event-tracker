@@ -4,7 +4,7 @@ import codecs
 
 # Event format: dd.mm.yyyy. - <event name>
 
-event_file_directory = '/home/vimor/myGitRepositories/event-tracker'
+event_file_directory = os.path.dirname(__file__)
 event_file_name = 'events.txt'
 event_file_path = os.path.join(event_file_directory, event_file_name)
 
