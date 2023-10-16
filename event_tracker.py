@@ -9,11 +9,48 @@ event_file_name = 'events.txt'
 event_file_path = os.path.join(event_file_directory, event_file_name)
 
 
+# Birthday format: dd.mm.yyyy. - <name>
+
+birthday_file_directory = os.path.dirname(__file__)
+birthday_file_name = 'birthdays.txt'
+birthday_file_path = os.path.join(birthday_file_directory, birthday_file_name)
+
+
 def main():
     def main_menu():
         viewing = True
         while viewing:
-            events = load_events()
+            events = load_events(event_file_path)
+            birthdays = load_events(birthday_file_path)
+
+            present_day = datetime.datetime.now()
+            for birthday in birthdays:
+                birthday_day = birthday["date"].day
+                birthday_month = birthday["date"].month
+                birthday_year = datetime.datetime.now().year
+                if present_day > datetime.datetime(birthday_year, birthday_month, birthday_day):
+                    birthday_year += 1
+
+                years = birthday_year - birthday["date"].year
+
+                suffix = "th"
+                if years % 10 == 1:
+                    suffix = "st"
+                elif years % 10 == 2:
+                    suffix = "nd"
+                elif years % 10 == 3:
+                    suffix = "rd"
+
+
+                events.append({
+                    "date" : datetime.datetime(birthday_year, birthday_month, birthday_day),
+                    "name" : "{}'s {}{} birthday".format(birthday["name"], years, suffix)
+                    })
+
+            def event_date(event):
+                return event["date"]
+            events.sort(key=event_date)
+
             print("Events:")
             
             current_month = 0
@@ -35,9 +72,11 @@ def main():
                 print("\nWhat do you wish to do?")
                 print("1. Add events")
                 print("2. Delete events")
-                print("3. Quit")
+                print("3. Add birthdays")
+                print("4. Delete birthdays")
+                print("5. Quit")
                 option = input()
-                if option not in ["1", "2", "3"]:
+                if option not in ["1", "2", "3", "4", "5"]:
                     print("\nPlease input a valid number\n")
                 else:
                     option_chosen = True
@@ -48,6 +87,10 @@ def main():
             elif option == "2":
                 delete_events_prompt()
             elif option == "3":
+                add_birthdays_prompt()
+            elif option == "4":
+                delete_birthdays_prompt()
+            elif option == "5":
                 viewing = False
 
     def add_events_prompt():
@@ -60,13 +103,13 @@ def main():
             if event_string == "":
                 adding = False
             else:
-                add_event(event_string)
+                add_event(event_file_path, event_string)
 
     def delete_events_prompt():
         deleting = True
         while deleting:
 
-            events = load_events()
+            events = load_events(event_file_path)
             event_index = 1
             for event in events:
                 print("{}. {} - {}".format(event_index,
@@ -81,12 +124,45 @@ def main():
             if event_index_string == "":
                 deleting = False
             else:
-                delete_event(event_index_string)
-        
+                delete_event(event_file_path, event_index_string)
+    
+    def add_birthdays_prompt():
+        print("Add birthdays in the following format: \"dd.mm.YYYY. - <name>\"")
+        print("Enter an empty line to go back")
+
+        adding = True
+        while adding:
+            birthday_string = input()
+            if birthday_string == "":
+                adding = False
+            else:
+                add_event(birthday_file_path, birthday_string)
+
+    def delete_birthdays_prompt():
+        deleting = True
+        while deleting:
+
+            birthdays = load_events(birthday_file_path)
+            birthday_index = 1
+            for birthday in birthdays:
+                print("{}. {} - {}".format(birthday_index,
+                                           birthday["date"].strftime("%d.%m.%Y."),
+                                           birthday["name"]))
+                birthday_index += 1
+
+            print("\nEnter the index of the birthday which you wish to delete")
+            print("Enter an empty line to go back")
+
+            birthday_index_string = input()
+            if birthday_index_string == "":
+                deleting = False
+            else:
+                delete_event(birthday_file_path, birthday_index_string)
+
     main_menu()
 
 
-def load_events():
+def load_events(event_file_path):
     events = []
     if os.path.isfile(event_file_path):
         events_file = codecs.open(event_file_path, 'r', "utf-8")
@@ -105,7 +181,7 @@ def load_events():
     return events
 
 
-def save_events(events):
+def save_events(event_file_path, events):
     def event_date(event):
         return event["date"]
     events.sort(key=event_date)
@@ -117,7 +193,7 @@ def save_events(events):
     events_file.close()
 
 
-def add_event(event_string):
+def add_event(event_file_path, event_string):
     separator_index = event_string.find('-')
     if separator_index == -1:
         print("Invalid input: no separator between date and name")
@@ -146,28 +222,28 @@ def add_event(event_string):
         "name" : name
         }
 
-    events = load_events()
+    events = load_events(event_file_path)
     events.append(event)
 
-    save_events(events)
+    save_events(event_file_path, events)
     print("Event added")
 
 
-def delete_event(event_index_string):
+def delete_event(event_file_path, event_index_string):
     try:
         event_index = int(event_index_string)
     except ValueError:
         print("\nInvalid index\n")
         return
     
-    events = load_events()
+    events = load_events(event_file_path)
     
     if event_index > len(events):
         print("\nInvalid index\n")
         return
         
     events.pop(event_index-1)
-    save_events(events)
+    save_events(event_file_path, events)
     print("\nEvent deleted\n")
 
 
