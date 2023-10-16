@@ -15,7 +15,17 @@ def main():
         while viewing:
             events = load_events()
             print("Events:")
+            
+            current_month = 0
+            current_year = 0
             for event in events:
+                if event["date"].month != current_month or event["date"].year != current_year:
+                    print("")
+                    print(event["date"].strftime("%B %Y"))
+                    print("=" * 20)
+                    current_month = event["date"].month
+                    current_year = event["date"].year
+                
                 print("{} - {}".format(event["date"].strftime("%d.%m.%Y."),
                                        event["name"]))
 
