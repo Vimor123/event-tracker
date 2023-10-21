@@ -74,9 +74,10 @@ def main():
                 print("2. Delete events")
                 print("3. Add birthdays")
                 print("4. Delete birthdays")
-                print("5. Quit")
+                print("5. Delete past events")
+                print("6. Quit")
                 option = input()
-                if option not in ["1", "2", "3", "4", "5"]:
+                if option not in ["1", "2", "3", "4", "5", "6"]:
                     print("\nPlease input a valid number\n")
                 else:
                     option_chosen = True
@@ -91,6 +92,8 @@ def main():
             elif option == "4":
                 delete_birthdays_prompt()
             elif option == "5":
+                delete_past_events(event_file_path)
+            elif option == "6":
                 viewing = False
 
     def add_events_prompt():
@@ -245,6 +248,18 @@ def delete_event(event_file_path, event_index_string):
     events.pop(event_index-1)
     save_events(event_file_path, events)
     print("\nEvent deleted\n")
+
+
+def delete_past_events(event_file_path):
+    events = load_events(event_file_path)
+    new_events = []
+
+    for event in events:
+        if event["date"] > (datetime.datetime.now() - datetime.timedelta(days = 1)):
+            new_events.append(event)
+
+    save_events(event_file_path, new_events)
+    print("\nOld events deleted\n")
 
 
 if __name__ == '__main__':
