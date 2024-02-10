@@ -15,37 +15,38 @@ birthday_file_directory = os.path.dirname(__file__)
 birthday_file_name = 'birthdays.txt'
 birthday_file_path = os.path.join(birthday_file_directory, birthday_file_name)
 
-
 def main():
     def main_menu():
         viewing = True
+        show_birthdays = True
         while viewing:
             events = load_events(event_file_path)
             birthdays = load_events(birthday_file_path)
 
-            present_day = datetime.datetime.now()
-            for birthday in birthdays:
-                birthday_day = birthday["date"].day
-                birthday_month = birthday["date"].month
-                birthday_year = datetime.datetime.now().year
-                if present_day > datetime.datetime(birthday_year, birthday_month, birthday_day):
-                    birthday_year += 1
+            if show_birthdays:
+                present_day = datetime.datetime.now()
+                for birthday in birthdays:
+                    birthday_day = birthday["date"].day
+                    birthday_month = birthday["date"].month
+                    birthday_year = datetime.datetime.now().year
+                    if present_day > datetime.datetime(birthday_year, birthday_month, birthday_day):
+                        birthday_year += 1
 
-                years = birthday_year - birthday["date"].year
+                    years = birthday_year - birthday["date"].year
 
-                suffix = "th"
-                if years % 10 == 1:
-                    suffix = "st"
-                elif years % 10 == 2:
-                    suffix = "nd"
-                elif years % 10 == 3:
-                    suffix = "rd"
+                    suffix = "th"
+                    if years % 10 == 1:
+                        suffix = "st"
+                    elif years % 10 == 2:
+                        suffix = "nd"
+                    elif years % 10 == 3:
+                        suffix = "rd"
 
 
-                events.append({
-                    "date" : datetime.datetime(birthday_year, birthday_month, birthday_day),
-                    "name" : "{}'s {}{} birthday".format(birthday["name"], years, suffix)
-                    })
+                    events.append({
+                            "date" : datetime.datetime(birthday_year, birthday_month, birthday_day),
+                            "name" : "{}'s {}{} birthday".format(birthday["name"], years, suffix)
+                        })
 
             def event_date(event):
                 return event["date"]
@@ -72,12 +73,16 @@ def main():
                 print("\nWhat do you wish to do?")
                 print("1. Add events")
                 print("2. Delete events")
-                print("3. Add birthdays")
-                print("4. Delete birthdays")
-                print("5. Delete past events")
-                print("6. Quit")
+                if show_birthdays:
+                    print("3. Hide birthdays")
+                else:
+                    print("3. Show birthdays")
+                print("4. Add birthdays")
+                print("5. Delete birthdays")
+                print("6. Delete past events")
+                print("7. Quit")
                 option = input()
-                if option not in ["1", "2", "3", "4", "5", "6"]:
+                if option not in ["1", "2", "3", "4", "5", "6", "7"]:
                     print("\nPlease input a valid number\n")
                 else:
                     option_chosen = True
@@ -88,12 +93,14 @@ def main():
             elif option == "2":
                 delete_events_prompt()
             elif option == "3":
-                add_birthdays_prompt()
+                show_birthdays = not show_birthdays
             elif option == "4":
-                delete_birthdays_prompt()
+                add_birthdays_prompt()
             elif option == "5":
-                delete_past_events(event_file_path)
+                delete_birthdays_prompt()
             elif option == "6":
+                delete_past_events(event_file_path)
+            elif option == "7":
                 viewing = False
 
     def add_events_prompt():
